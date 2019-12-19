@@ -8,6 +8,10 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private float speed;
     private Vector3 direction;
     public Animator anim;
+    [SerializeField] private LayerMask myLayer;
+
+    Vector3 currentLookTarget = Vector3.zero;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -36,6 +40,24 @@ public class PlayerScript : MonoBehaviour
         }
         else {
             anim.SetBool("Chob", false);
+        }
+
+
+        RaycastHit hit;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        Debug.DrawRay(ray.origin,ray.direction*500, Color.red);
+
+        if (Physics.Raycast(ray, out hit, 500, myLayer, QueryTriggerInteraction.Ignore))
+        {
+            if (hit.point != null) {
+                currentLookTarget = hit.point;
+            }
+
+            Vector3 targetPosition = new Vector3(hit.point.x, hit.point.y, hit.point.z);
+            Quaternion rotation = Quaternion.LookRotation(targetPosition - transform.position);
+
+            transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * 10);
         }
     }
 }
